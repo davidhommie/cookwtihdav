@@ -8,14 +8,27 @@ const money = (n: number) => "GH\u20B5 " + n.toFixed(2);
 
 async function mail(to: string, subject: string, html: string) {
   const key = Deno.env.get("RESEND_API_KEY");
-  if (!key || !to) return;
+  if (!key || !to) { console.error("Email skipped: RESEND_API_KEY or the recipient is missing"); return; }
   try {
-    await fetch("https://api.resend.com/emails", {
+    const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
       body: JSON.stringify({ from: Deno.env.get("FROM_EMAIL") || "cookwithdavid <onboarding@resend.dev>", to: [to], subject, html }),
     });
-  } catch (_) { /* email must never block an order */ }
+    if (!r.ok) console.error("Resend rejected the email:", r.status, await r.text()); // visible in the function Logs
+  } catch (e) { console.error("Resend request failed:", String(e)); }
+}
+
+async function tg(text: string) {
+  const token = Deno.env.get("TELEGRAM_BOT_TOKEN"), chat = Deno.env.get("TELEGRAM_CHAT_ID");
+  if (!token || !chat) return;
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chat, text, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
+    if (!r.ok) console.error("Telegram rejected the message:", r.status, await r.text());
+  } catch (e) { console.error("Telegram request failed:", String(e)); }
 }
 
 Deno.serve(async (req) => {
@@ -85,6 +98,7 @@ Deno.serve(async (req) => {
     if (gateway === "manual" && admin) {
       await mail(admin, "New order " + reference, `<h2>New order (awaiting direct payment)</h2><p>${esc(name)} - ${esc(phone)}${phone2 ? " / " + esc(phone2) : ""}<br>${esc(email)}</p><ul>${rows}</ul><p><b>Total ${money(amount)}</b></p><p>${where}</p><p>Reference: ${reference}</p>`);
     }
+    if (gateway === "manual") await tg(`<b>New order (direct send, awaiting payment)</b>\n${esc(reference)}\n${esc(name)} - ${esc(phone)}\n${lines.map((l) => l.qty + " x " + esc(l.title)).join("\n")}\nTotal ${money(amount)}\n${where}`);
     await mail(email, "We got your order - " + reference, `<h2>Thank you, ${esc(name)}</h2><ul>${rows}</ul><p><b>Total ${money(amount)}</b></p><p>${where}</p><p>Reference: <b>${reference}</b></p>` + (site ? `<p><a href="${site}/order?ref=${reference}">View your order</a></p>` : ""));
 
     return json({ reference, email, amount: Math.round(amount * 100) });

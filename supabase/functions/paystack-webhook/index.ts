@@ -6,14 +6,27 @@ const money = (n: number) => "GH\u20B5 " + n.toFixed(2);
 
 async function mail(to: string, subject: string, html: string) {
   const key = Deno.env.get("RESEND_API_KEY");
-  if (!key || !to) return;
+  if (!key || !to) { console.error("Email skipped: RESEND_API_KEY or the recipient is missing"); return; }
   try {
-    await fetch("https://api.resend.com/emails", {
+    const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
       body: JSON.stringify({ from: Deno.env.get("FROM_EMAIL") || "cookwithdavid <onboarding@resend.dev>", to: [to], subject, html }),
     });
-  } catch (_) { /* ignore */ }
+    if (!r.ok) console.error("Resend rejected the email:", r.status, await r.text()); // visible in the function Logs
+  } catch (e) { console.error("Resend request failed:", String(e)); }
+}
+
+async function tg(text: string) {
+  const token = Deno.env.get("TELEGRAM_BOT_TOKEN"), chat = Deno.env.get("TELEGRAM_CHAT_ID");
+  if (!token || !chat) return;
+  try {
+    const r = await fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chat, text, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
+    if (!r.ok) console.error("Telegram rejected the message:", r.status, await r.text());
+  } catch (e) { console.error("Telegram request failed:", String(e)); }
 }
 
 async function validSignature(body: string, sig: string, secret: string) {
@@ -45,6 +58,7 @@ Deno.serve(async (req) => {
     const rows = (o.items as any[]).map((l) => `<li>${l.qty} x ${esc(l.title)} - ${money(l.price * l.qty)}</li>`).join("");
     const site = (Deno.env.get("SITE_URL") || "").replace(/\/$/, "");
     await mail(o.email, "Payment received - " + ref, `<h2>Payment received</h2><p>Thank you, ${esc(o.customer_name)}. We are on it.</p><ul>${rows}</ul><p><b>Total ${money(Number(o.amount))}</b></p>` + (site ? `<p><a href="${site}/order?ref=${ref}">View your order</a></p>` : ""));
+    await tg(`<b>Paid order</b>\n${esc(ref)}\n${esc(o.customer_name)} - ${esc(o.phone)}\n${(o.items as any[]).map((l) => l.qty + " x " + esc(l.title)).join("\n")}\nTotal ${money(Number(o.amount))}\n${o.fulfilment === "delivery" ? "Delivery to: " + esc(o.address) : "Pickup order"}`);
     const admin = Deno.env.get("ADMIN_EMAIL");
     if (admin) await mail(admin, "Paid order " + ref, `<h2>Payment received</h2><p>${esc(o.customer_name)} - ${esc(o.phone)}<br>${esc(o.email)}</p><ul>${rows}</ul><p><b>Total ${money(Number(o.amount))}</b></p><p>${o.fulfilment === "delivery" ? "Delivery to: " + esc(o.address) : "Pickup order"}</p>`);
     return new Response("ok");

@@ -2,12 +2,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { money } from '../lib/utils';
+import { Brand } from './Icons';
+import { money, waLink } from '../lib/utils';
 
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export default function OrderClient({ instructions, phone }) {
+export default function OrderClient({ instructions, phone, wa }) {
   const ref = useSearchParams().get('ref') || '';
   const [o, setO] = useState(null);
   const [state, setState] = useState('loading'); // loading | ok | missing
@@ -63,7 +64,10 @@ export default function OrderClient({ instructions, phone }) {
       </ul>
       <p className="mt-4 flex justify-between text-lg font-black"><span>Total</span><span className="text-brand">{money(o.amount)}</span></p>
       <p className="mt-4 text-sm text-ink/60">{o.fulfilment === 'delivery' ? 'Delivery order' : 'Pickup at ' + (o.branch || 'your chosen branch')}</p>
-      <Link href="/menu" className="btn-red mt-6">Order more</Link>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <a href={waLink(wa, 'Hello! I just placed order ' + o.reference + ' (' + money(o.amount) + '). Please confirm.')} target="_blank" rel="noopener noreferrer" className="btn bg-[#25D366] text-white hover:brightness-95"><Brand name="whatsapp" size={20} /> Confirm on WhatsApp</a>
+        <Link href="/menu" className="btn-red">Order more</Link>
+      </div>
     </div>
   );
 }

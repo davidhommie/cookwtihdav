@@ -9,7 +9,7 @@ export default async function OrderPage() {
     <section className="bg-paper pb-16 pt-36">
       <div className="mx-auto max-w-2xl px-4">
         <Suspense fallback={<p className="text-center text-ink/60">Loading your order...</p>}>
-          <OrderClient instructions={s.payments.manual.instructions} phone={s.contact.phone} />
+          <OrderClient instructions={s.payments.manual.instructions} phone={s.contact.phone} wa={s.whatsapp.number || s.contact.phone} />
         </Suspense>
       </div>
     </section>
