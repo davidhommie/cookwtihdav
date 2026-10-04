@@ -1,17 +1,30 @@
 import Link from 'next/link';
-import { Icon } from './Icons';
-import { safeHref } from '../lib/utils';
+import { Icon, Brand } from './Icons';
+import { safeHref, waLink } from '../lib/utils';
 
 export default function Footer({ settings }) {
-  const { brand, contact, footer, nav, policies } = settings;
-  const h = 'mb-4 font-display text-lg font-bold text-white';
+  const { brand, contact, footer, nav, policies, social, whatsapp } = settings;
+  const h = 'mb-4 font-display text-xl font-bold text-white';
   const a = 'block py-1 text-white/70 transition hover:text-sun';
+  const socials = [
+    ['facebook', 'Facebook', social.facebook || 'https://www.facebook.com/'],
+    ['instagram', 'Instagram', social.instagram || 'https://www.instagram.com/'],
+    ['tiktok', 'TikTok', social.tiktok || 'https://www.tiktok.com/'],
+    ['whatsapp', 'WhatsApp', waLink(whatsapp.number || contact.phone, '')],
+  ];
   return (
     <footer className="bg-ink text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-4">
         <div>
-          <p className="font-display text-2xl font-bold">{brand.name}</p>
+          {brand.logo_url
+            ? <img src={brand.logo_url} alt={brand.name} className="logo-white h-14 w-auto" />
+            : <p className="font-display text-3xl font-bold">{brand.name}</p>}
           <p className="mt-3 text-white/70">{footer.about}</p>
+          <div className="mt-5 flex gap-3">
+            {socials.map(([n, l, href]) => (
+              <a key={n} href={safeHref(href)} target="_blank" rel="noopener noreferrer" aria-label={l} className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 transition hover:-translate-y-0.5 hover:bg-brand"><Brand name={n} size={20} /></a>
+            ))}
+          </div>
         </div>
         <div>
           <p className={h}>Quick links</p>
@@ -29,7 +42,7 @@ export default function Footer({ settings }) {
           <p className="flex gap-3"><Icon name="clock" className="shrink-0 text-sun" />{contact.hours}</p>
         </div>
       </div>
-      <div className="border-t border-white/10 py-5 text-center text-sm text-white/50">
+      <div className="border-t border-white/10 py-5 pr-24 text-center text-sm text-white/50">
         &copy; {new Date().getFullYear()} {brand.name}. All rights reserved. {footer.credit}
       </div>
     </footer>

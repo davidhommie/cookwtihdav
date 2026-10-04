@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 // items: [{ value, label }]. Numbers count up with CSS counters when scrolled into view.
-export default function Counters({ items }) {
+export default function Counters({ items, className }) {
   const r = useRef(null);
   useEffect(() => {
     const el = r.current;
@@ -12,7 +12,7 @@ export default function Counters({ items }) {
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={r} className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 text-center md:grid-cols-4">
+    <div ref={r} className={className || 'mx-auto grid max-w-5xl grid-cols-2 gap-8 px-4 text-center md:grid-cols-4'}>
       {items.map((it) => (
         <div key={it.label}>
           <div className="counter font-display text-4xl font-black text-sun md:text-5xl" style={{ '--to': Number(it.value) || 0 }} data-suffix="+" aria-label={it.value + '+'} />

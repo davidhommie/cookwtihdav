@@ -2,7 +2,7 @@ import PageHero from '../../components/PageHero';
 import ContactForm from '../../components/ContactForm';
 import Policies from '../../components/Policies';
 import Reveal from '../../components/Reveal';
-import { Icon } from '../../components/Icons';
+import { IconTile } from '../../components/Icons';
 import { getSettings } from '../../lib/data';
 export const revalidate = 60;
 export const metadata = { title: 'Contact | cookwithdavid' };
@@ -19,7 +19,7 @@ export default async function Contact() {
         {cards.map(([ic, t, v], k) => (
           <Reveal key={t} delay={k * 80}>
             <div className="h-full rounded-2xl bg-white p-6 text-center shadow">
-              <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-brand text-white"><Icon name={ic} /></span>
+              <span className="mx-auto block w-fit"><IconTile name={ic} /></span>
               <h2 className="mt-3 font-body text-lg font-black">{t}</h2>
               <p className="mt-1 break-words text-ink/70">{v}</p>
             </div>

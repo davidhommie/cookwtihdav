@@ -4,6 +4,7 @@ import Providers from '../components/Providers';
 import Header from '../components/Header';
 import Preloader from '../components/Preloader';
 import Footer from '../components/Footer';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 export const revalidate = 60;
 export const metadata = {
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }) {
           <Header settings={settings} />
           <main>{children}</main>
           <Footer settings={settings} />
+          <WhatsAppButton settings={settings} />
         </Providers>
       </body>
     </html>

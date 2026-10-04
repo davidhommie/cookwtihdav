@@ -2,7 +2,7 @@ import PageHero from '../../components/PageHero';
 import Counters from '../../components/Counters';
 import Reveal from '../../components/Reveal';
 import Pic from '../../components/Pic';
-import { Icon } from '../../components/Icons';
+import { IconTile } from '../../components/Icons';
 import { getSettings, getJourney, getTeam } from '../../lib/data';
 export const revalidate = 60;
 export const metadata = { title: 'About | cookwithdavid' };
@@ -25,7 +25,7 @@ export default async function About() {
             {a.values.map((v, k) => (
               <Reveal key={v.title} delay={k * 80}>
                 <div className="h-full rounded-2xl bg-paper p-6 text-center">
-                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-brand/10 text-brand"><Icon name={v.icon} /></span>
+                  <span className="mx-auto block w-fit"><IconTile name={v.icon} /></span>
                   <h3 className="mt-3 font-body font-black">{v.title}</h3>
                   <p className="mt-1 text-sm text-ink/70">{v.text}</p>
                 </div>
