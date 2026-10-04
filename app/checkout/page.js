@@ -9,7 +9,7 @@ export default async function Checkout() {
     <section className="bg-paper pb-16 pt-36">
       <div className="mx-auto max-w-6xl px-4">
         <h1 className="rise mb-8 text-3xl font-black md:text-4xl">Checkout</h1>
-        <CheckoutClient payments={s.payments} branches={branches} />
+        <CheckoutClient payments={s.payments} branches={branches} logos={s.payment_logos.items} />
       </div>
     </section>
   );

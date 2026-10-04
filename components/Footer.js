@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Icon, Brand } from './Icons';
+import PaymentLogos from './PaymentLogos';
 import { safeHref, waLink } from '../lib/utils';
 
 export default function Footer({ settings }) {
-  const { brand, contact, footer, nav, policies, social, whatsapp } = settings;
+  const { brand, contact, footer, nav, policies, social, whatsapp, payment_logos } = settings;
   const h = 'mb-4 font-display text-xl font-bold text-white';
   const a = 'block py-1 text-white/70 transition hover:text-sun';
   const socials = [
@@ -42,6 +43,12 @@ export default function Footer({ settings }) {
           <p className="flex gap-3"><Icon name="clock" className="shrink-0 text-sun" />{contact.hours}</p>
         </div>
       </div>
+      {payment_logos && payment_logos.items.length > 0 && (
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 border-t border-white/10 px-4 py-6">
+          <p className="font-bold text-white/80">{payment_logos.title}</p>
+          <PaymentLogos items={payment_logos.items} />
+        </div>
+      )}
       <div className="border-t border-white/10 py-5 pr-24 text-center text-sm text-white/50">
         &copy; {new Date().getFullYear()} {brand.name}. All rights reserved. {footer.credit}
       </div>

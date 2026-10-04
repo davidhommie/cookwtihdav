@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from './Providers';
 import Pic from './Pic';
 import { Icon } from './Icons';
+import PaymentLogos from './PaymentLogos';
 import { money } from '../lib/utils';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.com$/i; // must end in .com
@@ -23,7 +24,7 @@ function loadPaystack() {
   });
 }
 
-export default function CheckoutClient({ payments, branches }) {
+export default function CheckoutClient({ payments, branches, logos = [] }) {
   const { items, setQty, remove, clear, total } = useCart();
   const router = useRouter();
   const methods = [];
@@ -132,9 +133,10 @@ export default function CheckoutClient({ payments, branches }) {
           <h2 className="text-xl font-bold">Payment</h2>
           <div className="mt-4 space-y-3">
             {methods.map(([id, label]) => (
-              <label key={id} className={'flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-4 transition ' + (gateway === id ? 'border-brand bg-brand/5' : 'border-ink/10')}>
+              <label key={id} className={'flex cursor-pointer flex-wrap items-center gap-3 rounded-2xl border-2 p-4 transition ' + (gateway === id ? 'border-brand bg-brand/5' : 'border-ink/10')}>
                 <input type="radio" name="gw" className="accent-[#E10600]" checked={gateway === id} onChange={() => setGateway(id)} />
                 <span className="font-bold">{label}</span>
+                {id === 'paystack' && logos.length > 0 && <span className="ml-auto"><PaymentLogos items={logos} small /></span>}
               </label>
             ))}
             {gateway === 'manual' && <p className="rounded-2xl bg-sun/20 p-4 text-sm">You will get the payment instructions and your order reference on the next page.</p>}
